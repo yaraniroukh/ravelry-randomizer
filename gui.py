@@ -16,8 +16,16 @@ import webbrowser
 
 windll.shcore.SetProcessDpiAwareness(1)
 
-
-sg.theme("LightBlue6")
+sg.LOOK_AND_FEEL_TABLE['RRTheme'] = {'BACKGROUND': '#F7F8F8', 
+                                        'TEXT': '#2E4273', 
+                                        'INPUT': '#ACBDCF', 
+                                        'TEXT_INPUT': '#ACBDCF', 
+                                        'SCROLL': '#ACBDCF', 
+                                        'BUTTON': ('#FFFFFF', '#6282A2'), 
+                                        'PROGRESS': ('#D1826B', '#CC8019'), 
+                                        'BORDER': 1, 'SLIDER_DEPTH': 0,  
+                                        'PROGRESS_DEPTH': 0} 
+sg.theme('RRTheme')
 
 # Checked and unchecked boxes using Base64 image encoding system
 checked = b'iVBORw0KGgoAAAANSUhEUgAAABQAAAALBAMAAACNJ7BwAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAADBQTFRFvb29AAAA////////////AAAA////////////////////////////////////////aWfaEgAAABB0Uk5T/wA9AwTZKAECGAUIFQZDErNVXTwAAABXSURBVHicRc1LDYBADITh9oCAn01ZHjYwUj0bzgjBCk5QgAO2YQM9fZlMpiJx2qc1SQeYDnnPog6uE1QahlYhintwDBrB+U8Xvm6hLcBB24UTeb+xXfcDRREMM30B1B0AAAAASUVORK5CYII='
@@ -86,16 +94,16 @@ for key, value in PARAMETERS.items():
 
 tree = sg.Tree(data=treedata,
                headings=[],
-               num_rows=len(PARAMETERS)+2, 
+               num_rows=len(PARAMETERS)+5, 
                show_expanded=False, 
                enable_events=True, 
                key="-PARAM TREE-",
-               expand_x=True,
                expand_y=True,
                row_height=30,
-               col0_width=50,
+               auto_size_columns=False,
+               col0_width=23,
                vertical_scroll_only=True,
-               border_width=0,
+               border_width=1,
                metadata=[])
 
 
@@ -150,10 +158,10 @@ def clear_windows(window):
 ######### Layout construction
     
 parameter_column = sg.Column([
-    [tree],
     [sg.Text('Search', size=(6,1)), sg.InputText(key='-SEARCH-', size=(15,1)), sg.Button('OK', key='-SEARCH BUTTON-')],
-    [sg.Column([[]], size=(None, 200))],
-    [sg.Column([[sg.Button("Deselect all", key="-DESELECT-")]], element_justification="left"), sg.Column([[sg.Button("Randomize", key="-RANDOMIZE-")]], element_justification="right")],
+    [tree],
+    [sg.Column([[]], size=(None, 130))],
+    [sg.Column([[]], size=(15, 1)), sg.Column([[sg.Button("Deselect all", key="-DESELECT-"), sg.Button("Randomize", key="-RANDOMIZE-")]])],
 ], size=(280, 610))
 
 
@@ -180,6 +188,7 @@ def main():
     window = sg.Window("Ravelry Pattern Randomizer", layout, finalize=True)
     window['-PARAM TREE-'].bind('<Double-Button-1>', ' double_click')
     window['-SEARCH-'].bind('<Return>', ' enter')
+    window['-PARAM TREE-'].Widget['show'] = 'tree'
     search_term = ''
     pattern_found = False
 
