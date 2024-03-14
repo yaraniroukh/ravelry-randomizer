@@ -6,6 +6,7 @@ import textwrap
 from PIL import Image
 import io
 import helpers as hp
+import api_exceptions as exc
 
 load_dotenv()
 
@@ -24,6 +25,7 @@ def simplify(list):
     for cat in list:
         category = cat['name']
         permalink = cat.get('permalink', hp.slugify(category))
+        if permalink in exc.exceptions_categories.keys(): permalink = exc.exceptions_categories[permalink]
         children = cat.get('children', [])
         if not len(children) == 0:
             simplified_list += [(category, permalink), simplify(children)]
@@ -41,6 +43,7 @@ def simplify_attributes(list):
         category = cat['name']
         if category == "Age / Size / Fit": continue
         permalink = cat.get('permalink', hp.slugify(category))
+        if permalink in exc.exceptions_attributes.keys(): permalink = exc.exceptions_attributes[permalink]
         children = cat.get('children', [])
         if children == []: children = cat.get('pattern_attributes', [])
         if not len(children) == 0:
@@ -57,6 +60,7 @@ def simplify_fit(list):
     for cat in list:
         category = cat['name']
         permalink = cat.get('permalink', hp.slugify(category))
+        if permalink in exc.exceptions_fit.keys(): permalink = exc.exceptions_fit[permalink]
         children = cat.get('pattern_attributes', [])
         if not len(children) == 0:
             simplified_list += [(category, permalink), simplify_fit(children)]
