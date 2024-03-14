@@ -127,6 +127,37 @@ def get_all_pattern_source_types():
 ######### Logic of the randomizer
 
 
+def format_queries(query_list, **kwargs):
+    """Given tree.metadata and a search term (optional), format the queries as a list of parameters to be passed to generatePatternID()."""
+
+    query_params = {}
+
+    search = kwargs.get('search', None)
+    if search:
+        query_params['query'] = search
+
+    for param in query_list:
+        key = param.split(':')[0]
+        value = param.split(':')[-1]
+
+        if value == 'other':
+            value = format_others(param)
+
+        if key in query_params.keys(): # If parameter heading already exists in queries, add pipe (OR) operator.
+            query_params[key] = query_params[key] + '|' + value
+
+        else:
+            query_params[key] = value
+
+    return query_params
+
+def format_others(param):
+    """Format any 'other' parameters missing permalinks, and return the correct permalink."""
+
+    split_param = param.split(':')
+    category = split_param[-2:]
+    return category[1] + "-" + category[0]
+
 def check_matches_exist(response):
     """Return true if matches are found (if response is non-empty)."""
 
