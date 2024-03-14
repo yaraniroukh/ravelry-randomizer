@@ -5,12 +5,119 @@ import random
 import textwrap
 from PIL import Image
 import io
+import helpers as hp
 
 load_dotenv()
 
 # API credentials are stored in the .env file. Generate your own at https://www.ravelry.com/pro/developer
 API_USER = os.getenv("API_USER")
 API_PASS = os.getenv("API_PASS")
+
+
+######### Methods retrieving pattern search parameters from the Ravelry website
+
+def simplify(list):
+    """Recursively retrieve all children from a given list and simplify to include only their names and permalinks."""
+
+    simplified_list = []
+
+    for cat in list:
+        category = cat['name']
+        permalink = cat.get('permalink', hp.slugify(category))
+        children = cat.get('children', [])
+        if not len(children) == 0:
+            simplified_list += [(category, permalink), simplify(children)]
+        else:
+            simplified_list.append((category, permalink))
+    return simplified_list
+
+
+def simplify_attributes(list):
+    """Same as .simplify(), adapted to match irregularities in the pattern attributes list."""
+
+    simplified_list = []
+
+    for cat in list:
+        category = cat['name']
+        if category == "Age / Size / Fit": continue
+        permalink = cat.get('permalink', hp.slugify(category))
+        children = cat.get('children', [])
+        if children == []: children = cat.get('pattern_attributes', [])
+        if not len(children) == 0:
+            simplified_list += [(category, permalink), simplify_attributes(children)]
+        else:
+            simplified_list.append((category, permalink))
+    return simplified_list
+
+def simplify_fit(list):
+    """Same as .simplify(), adapted to match irregularities in the pattern age/size/fit attributes list."""
+
+    simplified_list = []
+
+    for cat in list:
+        category = cat['name']
+        permalink = cat.get('permalink', hp.slugify(category))
+        children = cat.get('pattern_attributes', [])
+        if not len(children) == 0:
+            simplified_list += [(category, permalink), simplify_fit(children)]
+        else:
+            simplified_list.append((category, permalink))
+    return simplified_list
+
+
+def get_all_pattern_categories():
+    """Return all pattern categories at the time of the API call as a nested list."""
+
+    url = "https://api.ravelry.com/pattern_categories/list.json"
+    response = requests.get(url)
+
+    categories = response.json()['pattern_categories']['children']
+
+    return simplify(categories)
+
+
+def get_all_pattern_attributes():
+    """Return all pattern attributes at the time of the API call as a nested list."""
+
+    url = "https://api.ravelry.com/pattern_attributes/groups.json"
+    response = requests.get(url)
+
+    attributes = response.json()['attribute_groups']
+
+    return simplify_attributes(attributes)
+
+
+def get_all_pattern_age_size_fit():
+    """Return all pattern age/size/fit attributes at the time of the API call as a nested list."""
+
+    url = "https://api.ravelry.com/pattern_attributes/groups.json"
+    response = requests.get(url)
+
+    fit_attributes = response.json()['attribute_groups'][1]['children']
+
+    return simplify_fit(fit_attributes)
+
+
+def get_all_yarn_weights():
+    """Return all yarn weights at the time of the API call as a list."""
+
+    url = "https://api.ravelry.com/yarn_weights.json"
+    response = requests.get(url, auth=(API_USER, API_PASS))
+
+    weights = response.json()['yarn_weights']
+
+    return simplify(weights)
+
+
+def get_all_pattern_source_types():
+    """Return all pattern source types at the time of the API call as a list."""
+
+    url = "https://api.ravelry.com/pattern_source_types/list.json"
+    response = requests.get(url)
+
+    sources = response.json()['pattern_source_types']
+
+    return simplify(sources)
 
 
 ######### Logic of the randomizer
