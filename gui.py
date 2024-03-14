@@ -19,7 +19,7 @@ windll.shcore.SetProcessDpiAwareness(1)
 sg.LOOK_AND_FEEL_TABLE['RRTheme'] = {'BACKGROUND': '#F7F8F8', 
                                         'TEXT': '#2E4273', 
                                         'INPUT': '#ACBDCF', 
-                                        'TEXT_INPUT': '#ACBDCF', 
+                                        'TEXT_INPUT': '#2E4273', 
                                         'SCROLL': '#ACBDCF', 
                                         'BUTTON': ('#FFFFFF', '#6282A2'), 
                                         'PROGRESS': ('#D1826B', '#CC8019'), 
