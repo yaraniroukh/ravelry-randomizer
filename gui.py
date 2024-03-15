@@ -170,7 +170,10 @@ pattern_view_column = sg.Column([
     [sg.Push(), sg.Column([[sg.Image(key="-PATTERN IMAGE-")]], size=(320, 320)), sg.Push()],
     [sg.Column([[sg.Text(key='-PATTERN AUTHOR-', enable_events=True)]], element_justification="left"), sg.Push(), sg.Column([[sg.Text(key='-PRICE-')]], element_justification="right")],
     [sg.Column([[sg.Text(key='-LANGUAGES-')]], element_justification="left"), sg.Push()],
-    [sg.Column([[sg.Text(key='-DATE PUBLISHED-')], [sg.Text(key='-CRAFT TYPE-')], [sg.Text(key='-PATTERN CATEGORY-')], [sg.Text(key='-YARN WEIGHT-')], [sg.Text(key='-PROJECTS COUNT-')], [sg.Text(key='-FAVORITES COUNT-')],], element_justification="left", size=(225, None), vertical_alignment="top"), sg.Column([[sg.Text(key='-PATTERN DESCRIPTION-', expand_x=True, size=(None, None))]], element_justification="left", expand_x=True, vertical_alignment="top")],
+    [sg.Column([[sg.Text(key='-DATE PUBLISHED-')], [sg.Text(key='-CRAFT TYPE-')], [sg.Text(key='-PATTERN CATEGORY-')], [sg.Text(key='-YARN WEIGHT-')], [sg.Text(key='-PROJECTS COUNT-')], [sg.Text(key='-FAVORITES COUNT-')],], 
+               element_justification="left", size=(225, None), vertical_alignment="top"), 
+    sg.Column([[sg.Multiline(key='-PATTERN DESCRIPTION-', disabled=True, enable_events=False, size=(33, None), no_scrollbar=True, background_color="#F7F8F8", border_width=0)]], 
+              element_justification="left", expand_x=True, vertical_alignment="top")],
 ], size=(560, 610), expand_x=True)
 
 

@@ -23,3 +23,12 @@ def simplify_date(string):
     year = date.split('/')[0]
     month = date.split('/')[1]
     return months[month] + ' ' + year
+
+def simplify_description(desc):
+    """Given a description string, remove certain formatting and shorten."""
+
+    desc = desc.replace('\n', ' ')
+    desc = re.sub(r"[\r\[\]]*", '', desc).strip()
+    desc_shortened = desc[:340]
+    if len(desc) > 340: desc_shortened += '...'
+    return desc_shortened
