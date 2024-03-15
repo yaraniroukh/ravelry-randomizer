@@ -2,7 +2,6 @@ from dotenv import load_dotenv
 import os
 import requests
 import random
-import textwrap
 from PIL import Image
 import io
 import helpers as hp
@@ -16,6 +15,7 @@ API_PASS = os.getenv("API_PASS")
 
 
 ######### Methods retrieving pattern search parameters from the Ravelry website
+
 
 def simplify(list):
     """Recursively retrieve all children from a given list and simplify to include only their names and permalinks."""
@@ -52,6 +52,7 @@ def simplify_attributes(list):
             simplified_list.append((category, permalink))
     return simplified_list
 
+
 def simplify_fit(list):
     """Same as .simplify(), adapted to match irregularities in the pattern age/size/fit attributes list."""
 
@@ -74,9 +75,7 @@ def get_all_pattern_categories():
 
     url = "https://api.ravelry.com/pattern_categories/list.json"
     response = requests.get(url)
-
     categories = response.json()['pattern_categories']['children']
-
     return simplify(categories)
 
 
@@ -85,9 +84,7 @@ def get_all_pattern_attributes():
 
     url = "https://api.ravelry.com/pattern_attributes/groups.json"
     response = requests.get(url)
-
     attributes = response.json()['attribute_groups']
-
     return simplify_attributes(attributes)
 
 
@@ -96,9 +93,7 @@ def get_all_pattern_age_size_fit():
 
     url = "https://api.ravelry.com/pattern_attributes/groups.json"
     response = requests.get(url)
-
     fit_attributes = response.json()['attribute_groups'][1]['children']
-
     return simplify_fit(fit_attributes)
 
 
@@ -107,9 +102,7 @@ def get_all_yarn_weights():
 
     url = "https://api.ravelry.com/yarn_weights.json"
     response = requests.get(url, auth=(API_USER, API_PASS))
-
     weights = response.json()['yarn_weights']
-
     return simplify(weights)
 
 
@@ -118,9 +111,7 @@ def get_all_pattern_source_types():
 
     url = "https://api.ravelry.com/pattern_source_types/list.json"
     response = requests.get(url)
-
     sources = response.json()['pattern_source_types']
-
     return simplify(sources)
 
 
@@ -135,21 +126,17 @@ def format_queries(query_list, **kwargs):
     search = kwargs.get('search', None)
     if search:
         query_params['query'] = search
-
     for param in query_list:
         key = param.split(':')[0]
         value = param.split(':')[-1]
-
         if value == 'other':
             value = format_others(param)
-
         if key in query_params.keys(): # If parameter heading already exists in queries, add pipe (OR) operator.
             query_params[key] = query_params[key] + '|' + value
-
         else:
             query_params[key] = value
-
     return query_params
+
 
 def format_others(param):
     """Format any 'other' parameters missing permalinks, and return the correct permalink."""
@@ -157,6 +144,7 @@ def format_others(param):
     split_param = param.split(':')
     category = split_param[-2:]
     return category[1] + "-" + category[0]
+
 
 def check_matches_exist(response):
     """Return true if matches are found (if response is non-empty)."""
@@ -193,14 +181,13 @@ def get_pattern(id):
     
     url = f"https://api.ravelry.com/patterns/{id}.json"
     response = requests.get(url, auth=(API_USER, API_PASS))
-
     if response.status_code == 200:
         pattern = response.json()['pattern']
         return pattern
-    
     else:
         return("Error: cannot find pattern")
     
+
 def get_pattern_URL(pattern):
     """Given a pattern, get the associated pattern URL."""
     
@@ -208,12 +195,14 @@ def get_pattern_URL(pattern):
     url = f"https://www.ravelry.com/patterns/library/{permalink}"
     return url
 
+
 def get_pattern_author_URL(pattern):
     """Given a pattern, get the pattern author's URL."""
     
     permalink = pattern['pattern_author']['permalink']
     url = f"https://www.ravelry.com/designers/{permalink}"
     return url
+
 
 def get_pattern_image(pattern):
     """Given a pattern, get the pattern's image."""
@@ -231,19 +220,18 @@ def get_pattern_image(pattern):
     else:
         return None
 
+
 def get_pattern_description(pattern):
     """Given a pattern, get a formatted version of the pattern's description."""
 
-    description = pattern['notes']
-    if description is not None: description = description.replace('\r', ' ').replace('\n', ' ')
-    description_shortened = description[:320]
-    if len(description) > 320: description_shortened = description_shortened + '...'
-    if not description == "": 
-        description = '"' + description + '"'
-        return textwrap.fill(description_shortened, 39)
+    pattern_description = pattern['notes']
+    description = hp.simplify_description(pattern_description)
+    if not description == "":
+        return '"' + description + '"'
     else:
         return("No description found.")
     
+
 def get_pattern_price(pattern):
     """Given a pattern, get a formatted version of the pattern's price."""
 
@@ -255,14 +243,12 @@ def get_pattern_price(pattern):
     else:
         return('Free')
     
+
 def get_pattern_languages(pattern):
     """Given a pattern, get a formatted list of all the languages the pattern is available in."""
 
-    languages = ""
-    for lan in pattern['languages'][:3]:
-        languages = languages + ', ' + lan['name']
+    languages = ", ".join([lan['name'] for lan in pattern['languages'][:3]]) 
     if len(pattern['languages']) > 3:
         languages = languages + '...'
-    languages = languages[2:]
     if languages == "": languages = "Unavailable"
     return('Languages: ' + languages)
