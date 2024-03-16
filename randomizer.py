@@ -235,13 +235,13 @@ def get_pattern_description(pattern):
 def get_pattern_price(pattern):
     """Given a pattern, get a formatted version of the pattern's price."""
 
-    if pattern['currency_symbol'] == None or pattern['price'] == None:
-        return('Price unavailable')
-    elif not pattern['free']:
+    if pattern['free']:
+        return('Free')
+    elif not pattern['price'] == None and not pattern['currency_symbol'] == None:
         price = str(pattern['price'])
         return(str(pattern['currency_symbol']) + price)
     else:
-        return('Free')
+        return('Price unavailable')
     
 
 def get_pattern_languages(pattern):
